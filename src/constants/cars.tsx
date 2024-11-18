@@ -1,5 +1,4 @@
-export interface DataCars {
-  _id: string;
+export interface DataNewCar {
   make: string;
   model: string;
   year: number;
@@ -9,4 +8,8 @@ export interface DataCars {
   transmission: 'Manual' | 'Automatic';
   mileage: number;
   owner: string;
+}
+
+export interface DataCar extends DataNewCar {
+  _id: string;
 }

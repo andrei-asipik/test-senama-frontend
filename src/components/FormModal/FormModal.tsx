@@ -1,8 +1,7 @@
-import { Button, Form, Input, InputNumber, message, Modal, Select, Spin } from 'antd';
-import { DataCars } from '../../constants/cars';
+import { Button, Form, Input, InputNumber, Modal, Select, Spin } from 'antd';
+import { DataCar, DataNewCar } from '../../constants/cars';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { API_URL } from '../../services/API';
+import { createCar, getCar, updateCar } from '../../services/api';
 
 interface FormModalProps {
   open: boolean;
@@ -12,54 +11,53 @@ interface FormModalProps {
 }
 
 export default function FormModal({ open, carId, onClose, onSave }: FormModalProps) {
-  const [data, setData] = useState<DataCars>();
+  const [data, setData] = useState<DataCar>();
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  const getCar = async (id: string) => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/getcar/${id}`);
-      setData(response.data);
-      console.log(response.data);
-    } catch (error) {
-      message.error('Не удалось загрузить данные');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (open && carId) {
-      getCar(carId);
-    }
-  }, [open, carId]);
+    // console.log('useEffect');
+    const fetchCar = async () => {
+      if (open && carId) {
+        setLoading(true);
+        try {
+          const carData = await getCar(carId);
+          setData(carData);
+          form.setFieldsValue(carData);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchCar();
+  }, [open, carId, form]);
 
-  const updateCar = async (values: DataCars) => {
+  const handleSubmit = async (values: DataCar | DataNewCar) => {
     try {
-      await axios.put(`${API_URL}/update/${carId}`, values);
-      message.success('Машина успешно обновлена');
+      if (carId) {
+        // console.log('updateCar', carId);
+        await updateCar(carId, values as DataCar);
+      } else {
+        // console.log('createCar', carId, values);
+        await createCar(values as DataNewCar);
+        // await createCar({
+        //   make: 'stringqwe',
+        //   model: 'stringqwe',
+        //   year: 2000,
+        //   color: 'string',
+        //   engine: 'string',
+        //   fuelType: 'Petrol',
+        //   transmission: 'Manual',
+        //   mileage: 1000,
+        //   owner: 'string',
+        // });
+      }
       onSave();
     } catch (error) {
-      message.error('Ошибка при сохранении данных');
       console.error(error);
     }
-  };
-
-  const createCar = async (values: DataCars) => {
-    try {
-      await axios.post(`${API_URL}/create`, values);
-      message.success('Машина успешно создана');
-      onSave();
-    } catch (error) {
-      message.error('Ошибка при сохранении данных');
-      console.error(error);
-    }
-  };
-
-  const handleSubmit = (values: DataCars) => {
-    carId ? updateCar(values) : createCar(values);
   };
 
   return (
@@ -86,18 +84,18 @@ export default function FormModal({ open, carId, onClose, onSave }: FormModalPro
           <Form.Item label="Fuel Type" name="fuelType" rules={[{ required: true }]}>
             <Select
               options={[
-                { value: 'petrol', label: 'Petrol' },
-                { value: 'diesel', label: 'Diesel' },
-                { value: 'electric', label: 'Electric' },
-                { value: 'hybrid', label: 'Hybrid' },
+                { value: 'Petrol', label: 'Petrol' },
+                { value: 'Diesel', label: 'Diesel' },
+                { value: 'Electric', label: 'Electric' },
+                { value: 'Hybrid', label: 'Hybrid' },
               ]}
             />
           </Form.Item>
           <Form.Item label="Transmission" name="transmission" rules={[{ required: true }]}>
             <Select
               options={[
-                { value: 'manual', label: 'Manual' },
-                { value: 'automatic', label: 'Automatic' },
+                { value: 'Manual', label: 'Manual' },
+                { value: 'Automatic', label: 'Automatic' },
               ]}
             />
           </Form.Item>

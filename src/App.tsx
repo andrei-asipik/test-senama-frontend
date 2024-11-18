@@ -11,7 +11,7 @@ function App() {
         <Content>
           <CarsTable />
         </Content>
-        <Footer>Footer</Footer>
+        <Footer>2024</Footer>
       </Layout>
     </>
   );

@@ -1,24 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Button, message, Space, Table } from 'antd';
+import { Button, Space, Table } from 'antd';
 
-import { DataCars } from '../../constants/cars';
+import { DataCar } from '../../constants/cars';
 import FormModal from '../FormModal/FormModal';
-import axios from 'axios';
-import { API_URL } from '../../services/API';
+import { deleteCar, getAllCars } from '../../services/api';
 
 export default function CarsTable() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<DataCar[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCarId, setSelectedCarId] = useState<string | null>(null);
 
-  const getAllCars = async () => {
+  const fetchAllCars = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/getallcars`);
-      setData(response.data);
+      const cars = await getAllCars();
+      setData(cars);
     } catch (error) {
-      message.error('Не удалось загрузить данные');
       console.error(error);
     } finally {
       setLoading(false);
@@ -26,27 +24,19 @@ export default function CarsTable() {
   };
 
   useEffect(() => {
-    getAllCars();
+    fetchAllCars();
   }, []);
 
-  const deleteCar = async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
-      console.log(`${API_URL}/delete/${id}`);
-      await axios.delete(`${API_URL}/delete/${id}`);
-      message.success('Запись успешно удалена');
+      await deleteCar(id);
+      await fetchAllCars();
     } catch (error) {
-      message.error('Ошибка при удалении записи');
       console.error(error);
     }
   };
 
-  const handleDelete = (id: string) => {
-    deleteCar(id);
-    getAllCars();
-  };
-
   const handleEdit = (id: string) => {
-    console.log(id);
     setSelectedCarId(id);
     setIsModalOpen(true);
   };
@@ -57,13 +47,14 @@ export default function CarsTable() {
   };
 
   const closeModal = () => {
+    setSelectedCarId(null);
     setIsModalOpen(false);
   };
 
   const columnConfigs: Array<{
     title: string;
     dataIndex: string;
-    sorter?: (a: DataCars, b: DataCars) => number;
+    sorter?: (a: DataCar, b: DataCar) => number;
   }> = [
     { title: 'Make', dataIndex: 'make' },
     { title: 'Model', dataIndex: 'model' },
@@ -86,7 +77,7 @@ export default function CarsTable() {
 
   const actionColumn = {
     key: 'actions',
-    render: (_: any, record: DataCars) => (
+    render: (_: any, record: DataCar) => (
       <Space>
         <Button onClick={() => handleEdit(record._id)}>Edit</Button>
         <Button danger onClick={() => handleDelete(record._id)}>
@@ -105,14 +96,14 @@ export default function CarsTable() {
           Добавить машину
         </Button>
       </Space>
-      <Table<DataCars> columns={columns} dataSource={data} rowKey="_id" loading={loading} />
+      <Table<DataCar> columns={columns} dataSource={data} rowKey="_id" loading={loading} />
       <FormModal
         open={isModalOpen}
         carId={selectedCarId}
         onClose={closeModal}
         onSave={() => {
           closeModal();
-          getAllCars();
+          fetchAllCars();
         }}
       />
     </>
