@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Button, Space, Table } from 'antd';
 
-import { DataCar } from '../../constants/cars';
+import { DataCar } from '../../services/interfaces';
 import FormModal from '../FormModal/FormModal';
 import { deleteCar, getAllCars } from '../../services/api';
+import { ColumnConfig } from './interfaces';
+import styles from './style.module.css';
 
 export default function CarsTable() {
   const [data, setData] = useState<DataCar[]>([]);
@@ -51,11 +53,7 @@ export default function CarsTable() {
     setIsModalOpen(false);
   };
 
-  const columnConfigs: Array<{
-    title: string;
-    dataIndex: string;
-    sorter?: (a: DataCar, b: DataCar) => number;
-  }> = [
+  const columnConfigs: ColumnConfig[] = [
     { title: 'Make', dataIndex: 'make' },
     { title: 'Model', dataIndex: 'model' },
     {
@@ -91,12 +89,18 @@ export default function CarsTable() {
 
   return (
     <>
-      <Space style={{ margin: 16 }}>
+      <Space className={styles['space']}>
         <Button type="primary" onClick={handleAdd}>
-          Добавить машину
+          Create
         </Button>
       </Space>
-      <Table<DataCar> columns={columns} dataSource={data} rowKey="_id" loading={loading} />
+      <Table<DataCar>
+        columns={columns}
+        dataSource={data}
+        rowKey="_id"
+        loading={loading}
+        pagination={false}
+      />
       <FormModal
         open={isModalOpen}
         carId={selectedCarId}

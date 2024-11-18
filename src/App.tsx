@@ -1,4 +1,4 @@
-import { Content, Footer, Header } from 'antd/es/layout/layout';
+import { Content, Footer } from 'antd/es/layout/layout';
 import './App.css';
 import { Layout } from 'antd';
 import CarsTable from './components/CarsTable/CarsTable';
@@ -7,7 +7,6 @@ function App() {
   return (
     <>
       <Layout>
-        <Header>Header</Header>
         <Content>
           <CarsTable />
         </Content>
