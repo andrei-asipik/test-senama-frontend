@@ -1,7 +1,7 @@
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import './App.css';
 import { Layout } from 'antd';
-import CarTable from './components/Table/Table';
+import CarsTable from './components/CarsTable/CarsTable';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       <Layout>
         <Header>Header</Header>
         <Content>
-          <CarTable></CarTable>
+          <CarsTable />
         </Content>
         <Footer>Footer</Footer>
       </Layout>
